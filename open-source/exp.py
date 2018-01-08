@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request
 import requests,bs4,sqlite3
+import matplotlib.pyplot as plt
 app = Flask(__name__)
 
 @app.route("/")
@@ -60,14 +61,13 @@ def mooc():
         cursor = con.cursor()
         cursor.execute("drop table if exists mooc")
         cursor.execute("create table if not exists mooc (id integer primary key,area text,time text,sno text,classes text,cnum text,cno text,cname text)")
-        num=0
+        classname = request.form['classes']
         fname="mooc.csv"
         handle=open(fname,"w")
         line='"'+"地点"+'","'+"时间"+'","'+"学号"+'","'+"班级"+'","'+"课程号"+'","'+"课序号"+'","'+"课程名"+'"\n'
         handle.writelines(line)
         for tr in table.find_all("tr"):
-            if tr.find_all("td")[4].text=="软件1514":
-                num+=1
+            if tr.find_all("td")[4].text==classname:
                 area=tr.find_all("td")[1].text
                 time=tr.find_all("td")[2].text
                 sno=tr.find_all("td")[3].text
@@ -81,6 +81,19 @@ def mooc():
                 handle.writelines(line)  
             con.commit()
         handle.close()
+        classlist=['软件1510','软件1511','软件1512',
+           '软件1513','软件1514','软件1515','软件1516']
+        nums=[0,0,0,0,0,0,0]
+        for i in range(0,7):
+            for tr in table.find_all("tr"):
+                if tr.find_all("td")[4].text==classlist[i]:
+                    nums[i]+=1
+        fig,ax=plt.subplots()
+        ax.plot(classlist,nums)
+        ax.grid()
+        fig.savefig("1510-1516尔雅考试人数.png")
         con.close()
     return render_template('finish.html')
+
+    
     
