@@ -3,6 +3,9 @@
 from flask import Flask, render_template, request
 import requests,bs4,sqlite3
 import matplotlib.pyplot as plt
+import math
+import turtle
+from triangle import triangle
 app = Flask(__name__)
 
 @app.route("/")
@@ -18,6 +21,8 @@ def search():
             return render_template('puzzle.html')
         elif name == 'mooc':
             return render_template('mooc.html')
+        elif name == 'triangle':
+            return render_template('triangle.html')
         else:
             return render_template('search.html')
 
@@ -105,5 +110,31 @@ def mooc():
             con.close()
         return render_template('finish.html')
 
-    
+@app.route("/drawTriangle",methods=['POST', 'GET'])
+def drawTriangle():
+    if request.method == 'GET':
+        return render_template('search.html')
+    else:
+        a=int(request.form['a'])
+        b=int(request.form['b'])
+        c=int(request.form['c'])
+        if a<10:
+            a=a*10
+            b=b*10
+            c=c*10
+        if(a+b>c and b+c>a and a+c>b):
+            x=triangle(a,b,c)
+            x.draw()
+            t=turtle.Pen()
+            t.forward(a)
+            t.left(180-x.B)
+            t.forward(c)
+            t.left(180-x.A)
+            t.forward(b)
+            ts = turtle.getscreen()
+            ts.getcanvas().postscript(file="triangel.ps")
+        else:
+            return render_template('validator.html')
+        return render_template('drawFinish.html')
+
     
